@@ -1,19 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Quiz de Culture Générale</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site de Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .question {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        .answers button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .answers button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .timer {
+            font-size: 1.2em;
+            color: #ff0000;
+            margin-bottom: 10px;
+        }
+        .explanation {
+            display: none;
+            margin-top: 10px;
+            font-size: 1em;
+            color: #555;
+        }
+        .statistics {
+            display: none;
+            margin-top: 20px;
+            font-size: 1em;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-    <div class="quiz-container">
-        <div id="quiz"></div>
-        <button id="prev">Question Précédente</button>
-        <button id="next">Question Suivante</button>
-        <button id="submit">Soumettre le Quiz</button>
-        <div id="results"></div>
+    <div class="container">
+        <h1>Quiz Culture Générale</h1>
+        <div class="timer" id="timer">Temps restant : 15s</div>
+        <div class="question" id="question">Quelle est la capitale de la France ?</div>
+        <div class="answers" id="answers">
+            <button onclick="checkAnswer(this, false, 'Londres est la capitale du Royaume-Uni.')">Londres</button>
+            <button onclick="checkAnswer(this, true, 'Correct ! Paris est bien la capitale de la France.')">Paris</button>
+            <button onclick="checkAnswer(this, false, 'Berlin est la capitale de l\'Allemagne.')">Berlin</button>
+            <button onclick="checkAnswer(this, false, 'Madrid est la capitale de l\'Espagne.')">Madrid</button>
+        </div>
+        <div class="result" id="result"></div>
+        <div class="explanation" id="explanation"></div>
+        <div class="statistics" id="statistics"></div>
     </div>
-    <script src="questions.js"></script>
-    <script src="script.js"></script>
+
+    <script>
+        let timer = 15;
+        let totalQuestions = 1; // Number of questions in the quiz
+        let answeredQuestions = 0;
+        let correctAnswers = 0;
+        let totalTime = 0;
+        const timerElement = document.getElementById('timer');
+
+        const interval = setInterval(() => {
+            timer--;
+            totalTime++;
+            timerElement.textContent = `Temps restant : ${timer}s`;
+
+            if (timer <= 0) {
+                clearInterval(interval);
+                document.querySelectorAll('.answers button').forEach(button => button.disabled = true);
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = 'Temps écoulé !';
+                resultDiv.style.color = 'red';
+                showStatistics();
+            }
+        }, 1000);
+
+        function checkAnswer(button, isCorrect, explanationText) {
+            clearInterval(interval);
+            document.querySelectorAll('.answers button').forEach(button => button.disabled = true);
+
+            const resultDiv = document.getElementById('result');
+            const explanationDiv = document.getElementById('explanation');
+
+            resultDiv.style.display = 'block';
+            explanationDiv.style.display = 'block';
+
+            if (isCorrect) {
+                resultDiv.textContent = 'Bonne réponse !';
+                resultDiv.style.color = 'green';
+                correctAnswers++;
+            } else {
+                resultDiv.textContent = 'Mauvaise réponse.';
+                resultDiv.style.color = 'red';
+            }
+
+            explanationDiv.textContent = explanationText;
+            answeredQuestions++;
+
+            if (answeredQuestions === totalQuestions) {
+                showStatistics();
+            }
+        }
+
+        function showStatistics() {
+            const statisticsDiv = document.getElementById('statistics');
+            statisticsDiv.style.display = 'block';
+            const averageTime = (totalTime / totalQuestions).toFixed(2);
+            statisticsDiv.innerHTML = `
+                <h2>Statistiques</h2>
+                <p>Questions répondues : ${answeredQuestions}/${totalQuestions}</p>
+                <p>Bonnes réponses : ${correctAnswers}</p>
+                <p>Temps moyen par question : ${averageTime} secondes</p>
+            `;
+        }
+    </script>
 </body>
 </html>
